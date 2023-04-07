@@ -4,3 +4,5 @@
 4) Determine pico IP (arp -a or nslookup on cmd?)
 5) upload main robot code over wifi (sendFirmware)
 6) Run commands!
+
+If you want to upload files to a pico with a boot.py file pre-installed, connect with USB and hit CRTL + C, should re-connect
