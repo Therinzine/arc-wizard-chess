@@ -5,7 +5,7 @@ class Waypoint:
         self.piece = piece
         self.point = point
     
-    def __str__(self):
+    def __repr__(self):
         return f'{self.piece}: {self.point}'
 
 class PathPlanner():
