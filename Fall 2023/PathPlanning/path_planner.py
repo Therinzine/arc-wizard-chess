@@ -80,6 +80,7 @@ class PathPlanner():
 
                 #path 2:
             elif (changeInFile == 2):
+                #this would check to see if it moves 
                 theh
             #we can remove this check if we want
             else:
@@ -108,10 +109,10 @@ class PathPlanner():
                     currentFile += fileDirection
 
             #Locates the 'change square' of the L movement from the knight
-            if (abs(changeRank) == 2):
-                changeRank = startRank + 2 * rankDirection
+            if (abs(changeInRank) == 2):
+                changeInRank = startRank + 2 * rankDirection
                 #changeFile = startFile + fileDirection
-                changeSquare = chess.square(startFile, changeRank)
+                changeSquare = chess.square(startFile, changeInRank)
             else:
                 #changeRank = startRank + rankDirection
                 changeFile = startFile + 2 * fileDirection
