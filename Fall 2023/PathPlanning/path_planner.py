@@ -58,7 +58,7 @@ class PathPlanner():
             rankDirection = 1 if changeInRank > 0 else -1
             fileDirection = 1 if changeInFile > 0 else -1
             
-
+            '''
             #TEST to check both paths:
             if (changeInRank == 2):
 
@@ -88,7 +88,7 @@ class PathPlanner():
 
 
             #End test
-
+            '''
 
 
 
@@ -99,7 +99,9 @@ class PathPlanner():
                 currentSquare = chess.square(currentFile, currentRank)
                 #if at any point there is a piece on the path, move inbetween squares, end loop
                 if self.board.piece_at(currentSquare) is not None:
-                    endMiddle = chess.square(endRank - 0.5, endFile - 0.5) #need to fix this, used later but is janky
+
+                    endMiddle = chess.square(endRank, endFile) #need to fix this, used later but is janky
+                    
                     moveInbetween = True
                     break
                 #should be one at a time, not both at once, fix this to check both paths
