@@ -4,6 +4,9 @@ class Waypoint:
     def __init__(self, piece: chess.PieceType, point: tuple) -> None:
         self.piece = piece
         self.point = point
+    
+    def __str__(self):
+        return f'{self.piece}: {self.point}'
 
 class PathPlanner():
     def __init__(self, board:chess.Board) -> None:
