@@ -17,8 +17,12 @@ class WizBoard(chess.Board):
 
     def push(self, move: chess.Move) -> None:
         super().push(move)
-        # update wizboard's data about specific pieces (piece_list)
-        pass
+        
+        # Handle Castle  (extra swaps)
+        
+        # Standard Moves
+        self.piece_list[move.to_square] = self.piece_list[move.from_square]
+        self.piece_list[move.from_square] = ''
 
     def pop(self) -> None:
         super().pop()
