@@ -28,9 +28,9 @@ class PathPlanner():
         # Handle Castle
         # Handle Standard moves
         piece_type = self.board.piece_at(move.from_square).piece_type
-        waypoints += [Waypoint(self.board.piece_list[move.from_square], point) for point in self.path(piece_type, move.from_square, move.to_square)]
+        waypoints += [Waypoint(self.board.piece_list[move.from_square], point) for point in self.single_path(piece_type, move.from_square, move.to_square)]
 
-        return waypoints 
+        return waypoints
     
     def single_path(self, piece_type:chess.PieceType, start:chess.Square, target:chess.Square, capture=False) -> list[tuple]:
         '''
