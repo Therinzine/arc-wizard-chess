@@ -1,2 +1,2 @@
-from .path_planner import *
-from .wizboard import *
+from path_planner import *
+from wizboard import *

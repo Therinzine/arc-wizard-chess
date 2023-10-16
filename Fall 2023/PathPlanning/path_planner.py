@@ -57,38 +57,6 @@ class PathPlanner():
             changeInFile = endFile - startFile
             rankDirection = 1 if changeInRank > 0 else -1
             fileDirection = 1 if changeInFile > 0 else -1
-            
-
-            #TEST to check both paths:
-            if (changeInRank == 2):
-
-                #path 1: 2 file than 1 rank:
-
-                currentFile = startFile
-                #move file by 2, check if their are any pieces along way
-                while(currentFile != endFile):
-                    currentFile = currentFile + fileDirection
-                    currentSquare = chess.square(currentFile, currentRank)
-                    if self.board.piece_at(currentSquare) is not None:
-                        moveInbetween = True
-                        break
-                #move rank by 1, check if their are any pieces along way. Do i even need to check this? This should be the last move and if it is the last move then it will be a capture??
-                currentRank = startRank + rankDirection
-                if self.board.piece_at(currentSquare) is not None:
-                    moveInbetween = True
-
-
-                #path 2:
-            elif (changeInFile == 2):
-                theh
-            #we can remove this check if we want
-            else:
-                print('Not a valid knight move!')
-
-
-            #End test
-
-
 
 
             currentRank = startRank + rankDirection

@@ -1,5 +1,5 @@
 import chess
-from .path_planner import PathPlanner
+from path_planner import PathPlanner
 
 class WizBoard(chess.Board):
     def __init__(self) -> None:
