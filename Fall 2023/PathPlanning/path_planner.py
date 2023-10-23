@@ -1,18 +1,18 @@
 import chess
 
-class Waypoint:
-    def __init__(self, piece: chess.PieceType, point: tuple) -> None:
+class Path:
+    def __init__(self, piece: str, points: list) -> None:
         self.piece = piece
-        self.point = point
-    
+        self.points = points
+   
     def __repr__(self):
-        return f'{self.piece}: {self.point}'
+        return f'{self.piece}: {self.points}'
 
 class PathPlanner():
     def __init__(self, board:chess.Board) -> None:
         self.board = board
 
-    def turn_paths(self, move:chess.Move) -> list[Waypoint]:
+    def turn_paths(self, move:chess.Move) -> list[Path]:
         '''
         Given move, generate waypoints in the order that they should be traveled
             - Waypoints contain target location and active piece
@@ -22,7 +22,7 @@ class PathPlanner():
         Returns list of tuples that contain (piece, [list of points])
         '''
         
-        waypoints = []
+        paths = []
 
         if not self.board.is_legal(move):
             return False
@@ -37,16 +37,16 @@ class PathPlanner():
             
             captured_position = chess.H8 + ((move.color == chess.BLACK) * 16) + len(self.board.capture_counts[not move.color])
 
-            waypoints.append((piece_id, self.single_path(piece_type, move.from_square, move.to_square, capture=True)))
-            waypoints.append((captured_piece_id, self.single_path(captured_piece_type, move.to_square, captured_position)))
-            waypoints.append((piece_id, self.single_path(piece_type, move.to_square, move.to_square)))
+            paths.append(Path(piece_id, self.single_path(piece_type, move.from_square, move.to_square, capture=True)))
+            paths.append(Path(captured_piece_id, self.single_path(captured_piece_type, move.to_square, captured_position)))
+            paths.append(Path(piece_id, self.single_path(piece_type, move.to_square, move.to_square)))
 
         # Handle Castle
         
         # Handle Standard moves
-        waypoints.append((piece_id, self.single_path(piece_type, move.from_square, move.to_square)))
+        paths.append(Path(piece_id, self.single_path(piece_type, move.from_square, move.to_square)))
 
-        return waypoints
+        return paths
     
     def single_path(self, piece_type:chess.PieceType, start:chess.Square, target:chess.Square, capture=False) -> list[tuple]:
         '''
