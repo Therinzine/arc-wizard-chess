@@ -18,6 +18,8 @@ class PathPlanner():
             - Waypoints contain target location and active piece
             - ex. Capturing piece moves next to captured piece, captured piece
                   moves away, capturing piece moves to captured piece's spot 
+        
+        Returns list of tuples that contain (piece, [list of points])
         '''
         
         waypoints = []
@@ -25,13 +27,24 @@ class PathPlanner():
         if not self.board.is_legal(move):
             return False
         
+        piece_type = self.board.piece_at(move.from_square).piece_type
+        piece_id = self.board.piece_list[move.from_square]
+
         # Handle Capture
         if self.board.is_capture(move):
-            self.board.piece_at(move.to_square)
+            captured_piece_type = self.board.piece_at(move.to_square).piece_type
+            captured_piece_id = self.board.piece_list[move.to_square]
+            
+            captured_position = chess.H8 + ((move.color == chess.BLACK) * 16) + len(self.board.capture_counts[not move.color])
+
+            waypoints.append((piece_id, self.single_path(piece_type, move.from_square, move.to_square, capture=True)))
+            waypoints.append((captured_piece_id, self.single_path(captured_piece_type, move.to_square, captured_position)))
+            waypoints.append((piece_id, self.single_path(piece_type, move.to_square, move.to_square)))
+
         # Handle Castle
+        
         # Handle Standard moves
-        piece_type = self.board.piece_at(move.from_square).piece_type
-        waypoints += [Waypoint(self.board.piece_list[move.from_square], point) for point in self.single_path(piece_type, move.from_square, move.to_square)]
+        waypoints.append((piece_id, self.single_path(piece_type, move.from_square, move.to_square)))
 
         return waypoints
     
