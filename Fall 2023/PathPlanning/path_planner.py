@@ -38,8 +38,8 @@ class PathPlanner():
             captured_position = chess.H8 + ((move.color == chess.BLACK) * 16) + len(self.board.capture_counts[not move.color])
 
             paths.append(Path(piece_id, self.single_path(piece_type, move.from_square, move.to_square, capture=True)))
-            paths.append(Path(captured_piece_id, self.single_path(captured_piece_type, move.to_square, captured_position)))
-            paths.append(Path(piece_id, self.single_path(piece_type, move.to_square, move.to_square)))
+            paths.append(Path(captured_piece_id, self.single_path(captured_piece_type, move.to_square, captured_position, capture=True)))
+            paths.append(Path(piece_id, self.single_path(piece_type, move.to_square, move.to_square, capture=True)))
 
         # Handle Castle
         
