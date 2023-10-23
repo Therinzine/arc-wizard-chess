@@ -73,7 +73,6 @@ class PathPlanner():
             changeInFile = endFile - startFile
             rankDirection = 1 if changeInRank > 0 else -1
             fileDirection = 1 if changeInFile > 0 else -1
-            
             '''
             #TEST to check both paths:
             if (changeInRank == 2):
@@ -116,8 +115,8 @@ class PathPlanner():
                 #if at any point there is a piece on the path, move inbetween squares, end loop
                 if self.board.piece_at(currentSquare) is not None:
 
-                    endMiddle = chess.square(endRank, endFile) #need to fix this, used later but is janky
-                    
+                   # endMiddle = chess.square(endRank, endFile) #need to fix this, used later but is janky
+
                     moveInbetween = True
                     break
                 #should be one at a time, not both at once, fix this to check both paths
@@ -137,7 +136,7 @@ class PathPlanner():
                 changeSquare = chess.square(changeFile, startRank)
             #pretty janky way to do this, find a cleaner way to get back to middle square.
             if moveInbetween == True:
-                return [(chess.square_file(location) + 1, chess.square_rank(location) + 1) for location in [start, changeSquare, target, endMiddle]]
+                return [(chess.square_file(location) + 1, chess.square_rank(location) + 1) for location in [start, changeSquare, target]]
             else:
                 return [(chess.square_file(location) + .5, chess.square_rank(location) + .5) for location in [start, changeSquare, target]]
 
@@ -145,12 +144,13 @@ class PathPlanner():
         #Castle: 
             #Going to be a specific piece type
 
-        #Capture Position: 
-            #
 
-        #Leaving: if square greater than 63, then it is leaving do x
+        #Capture Position, if this piece is capturing somethin. Will always move it back to same position (Top left, i think?). Does not move back to center of square. This done here or in other path?
+        #OR caputred piece leaving board also go between squares
+        if (target > 63 or capture):
+            return [(chess.square_file(location) + 1, chess.square_rank(location) + 1) for location in [start, target]]
+        else:
+            return [(chess.square_file(location) + .5, chess.square_rank(location) + .5) for location in [start, target]]
+                
 
 
-        # First make path assuming nothing is in the way
-        # Check if path is obstructed
-        return [(chess.square_file(location) + .5, chess.square_rank(location) + .5) for location in [start, target]]
