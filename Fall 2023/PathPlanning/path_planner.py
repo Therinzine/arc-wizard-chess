@@ -14,8 +14,8 @@ class PathPlanner():
 
     def turn_paths(self, move:chess.Move) -> list[Path]:
         '''
-        Given move, generate waypoints in the order that they should be traveled
-            - Waypoints contain target location and active piece
+        Given move, generate Paths for in the order that they should be traveled
+            - Paths contain active piece code (ex. 'p1') and list of points
             - ex. Capturing piece moves next to captured piece, captured piece
                   moves away, capturing piece moves to captured piece's spot 
         
@@ -27,28 +27,40 @@ class PathPlanner():
         if not self.board.is_legal(move):
             return False
         
-        piece_type = self.board.piece_at(move.from_square).piece_type
         piece_id = self.board.piece_list[move.from_square]
 
         # Handle Capture
         if self.board.is_capture(move):
-            captured_piece_type = self.board.piece_at(move.to_square).piece_type
-            captured_piece_id = self.board.piece_list[move.to_square]
             
-            captured_position = chess.H8 + ((move.color == chess.BLACK) * 16) + len(self.board.capture_counts[not move.color])
+            captured_position = chess.H8 + ((self.board.turn == chess.BLACK) * 16) + self.board.capture_counts[not self.board.turn]
+            
+            if self.board.is_en_passant(move):
+                captured_piece_square = move.to_square + (8 * self.board.turn)
+                captured_piece_id = self.board.piece_list[captured_piece_square]
 
-            paths.append(Path(piece_id, self.single_path(piece_type, move.from_square, move.to_square, capture=True)))
-            paths.append(Path(captured_piece_id, self.single_path(captured_piece_type, move.to_square, captured_position)))
-            paths.append(Path(piece_id, self.single_path(piece_type, move.to_square, move.to_square)))
+                paths.append(Path(piece_id, self.single_path(move.from_square, move.to_square)))
+                paths.append(Path(captured_piece_id, self.single_path(captured_piece_square, captured_position, move_type="LEAVE")))
+                return paths
+            else:
+                captured_piece_id = self.board.piece_list[move.to_square]
+
+                paths.append(Path(piece_id, self.single_path(move.from_square, move.to_square, move_type="CAPTURE")))
+                paths.append(Path(captured_piece_id, self.single_path(move.to_square, captured_position, move_type="LEAVE")))
+                paths.append(Path(piece_id, self.single_path(move.to_square, move.to_square)))
+                return paths
 
         # Handle Castle
+        if self.board.is_castling(move):
+            if self.board.is_kingside_castling(move):
+                paths.append(Path(piece_id, self.single_path(move.from_square, move.to_square)))
+                return paths
         
         # Handle Standard moves
-        paths.append(Path(piece_id, self.single_path(piece_type, move.from_square, move.to_square)))
+        paths.append(Path(piece_id, self.single_path(move.from_square, move.to_square)))
 
         return paths
     
-    def single_path(self, piece_type:chess.PieceType, start:chess.Square, target:chess.Square, capture=False) -> list[tuple]:
+    def single_path(self, start:chess.Square, target:chess.Square, move_type="NORMAL") -> list[tuple]:
         '''
         Given starting/target locations and a piece type, generate list of points
         a single piece needs to travel to
@@ -57,12 +69,16 @@ class PathPlanner():
            - ex. diagonal vs straight and then right for a bishop
         
         Use self.board data to avoid other pieces on the board if necessary
+
+        move_type: "NORMAL", "CASTLE", "CAPTURE", or "LEAVE"
         '''
      
         startRank = chess.square_rank(start)
         startFile = chess.square_file(start)
         endRank = chess.square_rank(target)
         endFile = chess.square_file(target)
+        changeInRank = endRank - startRank
+        changeInFile = endFile - startFile
         moveInbetween = False
 
     #Knight path planning 1 path, not both paths. Check to see if it moves in a knight pattern
