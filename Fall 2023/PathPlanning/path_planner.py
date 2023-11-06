@@ -84,9 +84,6 @@ class PathPlanner():
     #Knight path planning 1 path, not both paths. Check to see if it moves in a knight pattern
 
         moveInbetween = False 
-        #determines how the ranks change
-        changeInRank = endRank - startRank
-        changeInFile = endFile - startFile
         if ((abs(changeInRank) == 2 and abs(changeInFile) == 1) or (abs(changeInFile) == 2 and abs(changeInRank) == 1)):
             rankDirection = 1 if changeInRank > 0 else -1
             fileDirection = 1 if changeInFile > 0 else -1
@@ -99,6 +96,7 @@ class PathPlanner():
                 if self.board.piece_at(currentSquare) is not None:
                    # endMiddle = chess.square(endRank, endFile) #need to fix this, used later but is janky
                     moveInbetween = True
+                    endMiddle = chess.square(endRank, endFile)
                     break
                 #should be one at a time, not both at once, fix this to check both paths
                 if (currentRank != endRank):
@@ -117,20 +115,15 @@ class PathPlanner():
             #pretty janky way to do this, find a cleaner way to get back to middle square.
             if moveInbetween == True:
                 return [(chess.square_file(location) + 1, chess.square_rank(location) + 1) for location in [start, changeSquare, target]]
+                
             else:
                 return [(chess.square_file(location) + .5, chess.square_rank(location) + .5) for location in [start, changeSquare, target]]
 
 
-        #Castle
-        if start == 'H8' or 'H1':
-            #code for where the rook needs to go
-            rookHalf = [(chess.square_file(location) + 1, chess.square_rank(location) + 1) for location in [start, target]]
-        elif start == 'E1' or 'E8':
-            kingHalf = [(chess.square_file(location) + 1, chess.square_rank(location) + 1) for location in [start, target]]
-                #code for king
+        #Castle this means that the rook is moving, need to move the rook around
+        if move_type == "CASTLE":
+            return[(chess.square_file(location) + 1, chess.square_rank(location) + 1) for location in [start, target]]
                 
-
-
         #Capture Position, if this piece is capturing something. Will always move it back to same position (Top left, i think?). Does not move back to center of square. This done here or in other path?
         if (target > 63):
             return [(chess.square_file(location) + 1, chess.square_rank(location) + 1) for location in [start, target]]
