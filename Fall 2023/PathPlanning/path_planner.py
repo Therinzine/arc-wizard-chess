@@ -51,9 +51,13 @@ class PathPlanner():
 
         # Handle Castle
         if self.board.is_castling(move):
+            paths.append(Path(piece_id, self.single_path(move.from_square, move.to_square)))
             if self.board.is_kingside_castling(move):
-                paths.append(Path(piece_id, self.single_path(move.from_square, move.to_square)))
-                return paths
+                paths.append(Path(piece_id, self.single_path(move.from_square + 3, move.from_square + 1, move_type="CASTLE")))
+            else:
+                paths.append(Path(piece_id, self.single_path(move.from_square - 4, move.from_square - 1, move_type="CASTLE")))
+            return paths
+                
         
         # Handle Standard moves
         paths.append(Path(piece_id, self.single_path(move.from_square, move.to_square)))
