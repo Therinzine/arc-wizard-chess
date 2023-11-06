@@ -85,47 +85,15 @@ class PathPlanner():
         changeInFile = endFile - startFile
         moveInbetween = False
 
-    #Knight path planning 1 path, not both paths
-        if abs(changeInRank) == 2 and abs(changeInFile) == 1 or abs(changeInRank) == 1 and abs(changeInFile) == 2:
-            moveInbetween = False 
-            #determines how the ranks change
-            
+    #Knight path planning 1 path, not both paths. Check to see if it moves in a knight pattern
+
+        moveInbetween = False 
+        #determines how the ranks change
+        changeInRank = endRank - startRank
+        changeInFile = endFile - startFile
+        if ((abs(changeInRank) == 2 and abs(changeInFile) == 1) or (abs(changeInFile) == 2 and abs(changeInRank) == 1)):
             rankDirection = 1 if changeInRank > 0 else -1
             fileDirection = 1 if changeInFile > 0 else -1
-            '''
-            #TEST to check both paths:
-            if (changeInRank == 2):
-
-                #path 1: 2 file than 1 rank:
-
-                currentFile = startFile
-                #move file by 2, check if their are any pieces along way
-                while(currentFile != endFile):
-                    currentFile = currentFile + fileDirection
-                    currentSquare = chess.square(currentFile, currentRank)
-                    if self.board.piece_at(currentSquare) is not None:
-                        moveInbetween = True
-                        break
-                #move rank by 1, check if their are any pieces along way. Do i even need to check this? This should be the last move and if it is the last move then it will be a capture??
-                currentRank = startRank + rankDirection
-                if self.board.piece_at(currentSquare) is not None:
-                    moveInbetween = True
-
-
-                #path 2:
-            elif (changeInFile == 2):
-                #this would check to see if it moves 
-                theh
-            #we can remove this check if we want
-            else:
-                print('Not a valid knight move!')
-
-
-            #End test
-            '''
-
-
-
             currentRank = startRank + rankDirection
             currentFile = startFile + fileDirection
             #go through each square and see if there is a piece on the square
@@ -133,9 +101,7 @@ class PathPlanner():
                 currentSquare = chess.square(currentFile, currentRank)
                 #if at any point there is a piece on the path, move inbetween squares, end loop
                 if self.board.piece_at(currentSquare) is not None:
-
                    # endMiddle = chess.square(endRank, endFile) #need to fix this, used later but is janky
-
                     moveInbetween = True
                     break
                 #should be one at a time, not both at once, fix this to check both paths
@@ -143,7 +109,6 @@ class PathPlanner():
                     currentRank += rankDirection
                 if (currentFile != endFile):
                     currentFile += fileDirection
-
             #Locates the 'change square' of the L movement from the knight
             if (abs(changeInRank) == 2):
                 changeInRank = startRank + 2 * rankDirection
@@ -160,13 +125,18 @@ class PathPlanner():
                 return [(chess.square_file(location) + .5, chess.square_rank(location) + .5) for location in [start, changeSquare, target]]
 
 
-        #Castle: 
-            #Going to be a specific piece type
+        #Castle
+        if start == 'H8' or 'H1':
+            #code for where the rook needs to go
+            rookHalf = [(chess.square_file(location) + 1, chess.square_rank(location) + 1) for location in [start, target]]
+        elif start == 'E1' or 'E8':
+            kingHalf = [(chess.square_file(location) + 1, chess.square_rank(location) + 1) for location in [start, target]]
+                #code for king
+                
 
 
-        #Capture Position, if this piece is capturing somethin. Will always move it back to same position (Top left, i think?). Does not move back to center of square. This done here or in other path?
-        #OR caputred piece leaving board also go between squares
-        if (target > 63 or move_type=="CAPTURE"):
+        #Capture Position, if this piece is capturing something. Will always move it back to same position (Top left, i think?). Does not move back to center of square. This done here or in other path?
+        if (target > 63):
             return [(chess.square_file(location) + 1, chess.square_rank(location) + 1) for location in [start, target]]
         else:
             return [(chess.square_file(location) + .5, chess.square_rank(location) + .5) for location in [start, target]]
