@@ -76,7 +76,6 @@ class PathPlanner():
 
         move_type: "NORMAL", "CASTLE", "CAPTURE", or "LEAVE"
         '''
-     
         startRank = chess.square_rank(start)
         startFile = chess.square_file(start)
         endRank = chess.square_rank(target)
@@ -84,55 +83,62 @@ class PathPlanner():
         changeInRank = endRank - startRank
         changeInFile = endFile - startFile
         moveInbetween = False
+        #Normal movement (includes knight move)
+        if (move_type == "NORMAL"):
 
-    #Knight path planning 1 path, not both paths. Check to see if it moves in a knight pattern
-
-        moveInbetween = False 
-        if ((abs(changeInRank) == 2 and abs(changeInFile) == 1) or (abs(changeInFile) == 2 and abs(changeInRank) == 1)):
-            rankDirection = 1 if changeInRank > 0 else -1
-            fileDirection = 1 if changeInFile > 0 else -1
-            currentRank = startRank + rankDirection
-            currentFile = startFile + fileDirection
-            #go through each square and see if there is a piece on the square
-            while ((currentRank != endRank) or (currentFile != endFile)):
-                currentSquare = chess.square(currentFile, currentRank)
-                #if at any point there is a piece on the path, move inbetween squares, end loop
-                if self.board.piece_at(currentSquare) is not None:
-                   # endMiddle = chess.square(endRank, endFile) #need to fix this, used later but is janky
-                    moveInbetween = True
-                    endMiddle = chess.square(endRank, endFile)
-                    break
-                #should be one at a time, not both at once, fix this to check both paths
-                if (currentRank != endRank):
-                    currentRank += rankDirection
-                if (currentFile != endFile):
-                    currentFile += fileDirection
-            #Locates the 'change square' of the L movement from the knight
-            if (abs(changeInRank) == 2):
-                changeInRank = startRank + 2 * rankDirection
-                #changeFile = startFile + fileDirection
-                changeSquare = chess.square(startFile, changeInRank)
+        #Knight movement: path planning 1 path, not both paths.
+            if ((abs(changeInRank) == 2 and abs(changeInFile) == 1) or (abs(changeInFile) == 2 and abs(changeInRank) == 1)):
+                rankDirection = 1 if changeInRank > 0 else -1
+                fileDirection = 1 if changeInFile > 0 else -1
+                currentRank = startRank + rankDirection
+                currentFile = startFile + fileDirection
+                #go through each square and see if there is a piece on the square
+                while ((currentRank != endRank) or (currentFile != endFile)):
+                    currentSquare = chess.square(currentFile, currentRank)
+                    #if at any point there is a piece on the path, move inbetween squares, end loop
+                    if self.board.piece_at(currentSquare) is not None:
+                    # endMiddle = chess.square(endRank, endFile) #need to fix this, used later but is janky
+                        moveInbetween = True
+                        endMiddle = chess.square(endRank, endFile)
+                        break
+                    #should be one at a time, not both at once, fix this to check both paths
+                    if (currentRank != endRank):
+                        currentRank += rankDirection
+                    if (currentFile != endFile):
+                        currentFile += fileDirection
+                #Locates the 'change square' of the L movement from the knight
+                if (abs(changeInRank) == 2):
+                    changeInRank = startRank + 2 * rankDirection
+                    #changeFile = startFile + fileDirection
+                    changeSquare = chess.square(startFile, changeInRank)
+                else:
+                    #changeRank = startRank + rankDirection
+                    changeFile = startFile + 2 * fileDirection
+                    changeSquare = chess.square(changeFile, startRank)
+                #move in between squares and end up back in middle of square
+                if moveInbetween == True:
+                    t = [(chess.square_file(location) + 1, chess.square_rank(location) + 1) for location in [start, changeSquare, target]]
+                    t.append((chess.square_file(target) + 0.5, chess.square_rank(target) + 0.5))
+                    return t
+                else:
+                    return [(chess.square_file(location) + .5, chess.square_rank(location) + .5) for location in [start, changeSquare, target]]
+        #Normal Movement: Movement for any piece not fitting the criteria of a special move
             else:
-                #changeRank = startRank + rankDirection
-                changeFile = startFile + 2 * fileDirection
-                changeSquare = chess.square(changeFile, startRank)
-            #pretty janky way to do this, find a cleaner way to get back to middle square.
-            if moveInbetween == True:
-                return [(chess.square_file(location) + 1, chess.square_rank(location) + 1) for location in [start, changeSquare, target]]
+                return [(chess.square_file(location) + 0.5, chess.square_rank(location) + 0.5) for location in [start, target]]
+    
+    #Castle: Means that the rook is moving, need to move the rook inbetween squares
+        elif move_type == "CASTLE":
+            t = [(chess.square_file(location) + 1, chess.square_rank(location) + 1) for location in [start, target]]
+            t.append((chess.square_file(target) + 0.5, chess.square_rank(target) + 0.5))
+            return t
                 
-            else:
-                return [(chess.square_file(location) + .5, chess.square_rank(location) + .5) for location in [start, changeSquare, target]]
-
-
-        #Castle this means that the rook is moving, need to move the rook around
-        if move_type == "CASTLE":
-            return[(chess.square_file(location) + 1, chess.square_rank(location) + 1) for location in [start, target]]
-                
-        #Capture Position, if this piece is capturing something. Will always move it back to same position (Top left, i think?). Does not move back to center of square. This done here or in other path?
-        if (target > 63):
-            return [(chess.square_file(location) + 1, chess.square_rank(location) + 1) for location in [start, target]]
-        else:
+    #Piece is Capturing NOT DONE, need to call leaving piece first then this, but that looks bad so redesign? 
+        elif (move_type == "CAPTURE"):
+            return [(chess.square_file(location) + 0.5, chess.square_rank(location) + 0.5) for location in [start, target]]
+        
+    #Piece is leaving the board: Moves inbetween squares and then back to center of square
+        elif(move_type == "LEAVE"):
+            t = [(chess.square_file(location) + 1, chess.square_rank(location) + 1) for location in [start, target]]
+            t.append((chess.square_file(target) + 0.5, chess.square_rank(target) + 0.5))
             return [(chess.square_file(location) + .5, chess.square_rank(location) + .5) for location in [start, target]]
-                
-
-
+        
