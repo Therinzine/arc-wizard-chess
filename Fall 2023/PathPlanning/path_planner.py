@@ -76,6 +76,7 @@ class PathPlanner():
 
         move_type: "NORMAL", "CASTLE", "CAPTURE", or "LEAVE"
         '''
+        #Variables used for Knight movement
         startRank = chess.square_rank(start)
         startFile = chess.square_file(start)
         endRank = chess.square_rank(target)
@@ -83,6 +84,7 @@ class PathPlanner():
         changeInRank = endRank - startRank
         changeInFile = endFile - startFile
         moveInbetween = False
+
         #Normal movement (includes knight move)
         if (move_type == "NORMAL"):
 
@@ -132,7 +134,7 @@ class PathPlanner():
             t.append((chess.square_file(target) + 0.5, chess.square_rank(target) + 0.5))
             return t
                 
-    #Piece is Capturing NOT DONE, need to call leaving piece first then this, but that looks bad so redesign? 
+    #Piece is Capturing: Moves to location of captured piece (could technically remove this)
         elif (move_type == "CAPTURE"):
             return [(chess.square_file(location) + 0.5, chess.square_rank(location) + 0.5) for location in [start, target]]
         
@@ -140,5 +142,5 @@ class PathPlanner():
         elif(move_type == "LEAVE"):
             t = [(chess.square_file(location) + 1, chess.square_rank(location) + 1) for location in [start, target]]
             t.append((chess.square_file(target) + 0.5, chess.square_rank(target) + 0.5))
-            return [(chess.square_file(location) + .5, chess.square_rank(location) + .5) for location in [start, target]]
+            return t
         
