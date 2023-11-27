@@ -77,10 +77,10 @@ class PathPlanner():
         move_type: "NORMAL", "CASTLE", "CAPTURE", or "LEAVE"
         '''
         #Variables used for Knight movement
-        startRank = chess.square_rank(start)
+        startRank = chess.square_rank(start) 
         startFile = chess.square_file(start)
-        endRank = chess.square_rank(target)
-        endFile = chess.square_file(target)
+        endRank = chess.square_rank(target) if move_type != "LEAVE" else chess.square_file(target)
+        endFile = chess.square_file(target) if move_type != "LEAVE" else chess.square_rank(target)
         changeInRank = endRank - startRank
         changeInFile = endFile - startFile
         moveInbetween = False
