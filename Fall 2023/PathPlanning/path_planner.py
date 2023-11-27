@@ -8,6 +8,12 @@ class Path:
     def __repr__(self):
         return f'{self.piece}: {self.points}'
 
+def get_rank(square):
+    return chess.square_rank(square) if square <=63 else chess.square_file(square)
+
+def get_file(square):
+    return chess.square_file(square) if square <=63 else chess.square_rank(square)
+
 class PathPlanner():
     def __init__(self, board:chess.Board) -> None:
         self.board = board
@@ -77,10 +83,10 @@ class PathPlanner():
         move_type: "NORMAL", "CASTLE", "CAPTURE", or "LEAVE"
         '''
         #Variables used for Knight movement
-        startRank = chess.square_rank(start) 
-        startFile = chess.square_file(start)
-        endRank = chess.square_rank(target) if move_type != "LEAVE" else chess.square_file(target)
-        endFile = chess.square_file(target) if move_type != "LEAVE" else chess.square_rank(target)
+        startRank = get_rank(start) 
+        startFile = get_file(start)
+        endRank = get_rank(target)
+        endFile = get_file(target)
         changeInRank = endRank - startRank
         changeInFile = endFile - startFile
         moveInbetween = False
@@ -119,28 +125,28 @@ class PathPlanner():
                     changeSquare = chess.square(changeFile, startRank)
                 #move in between squares and end up back in middle of square
                 if moveInbetween == True:
-                    t = [(chess.square_file(location) + 1, chess.square_rank(location) + 1) for location in [start, changeSquare, target]]
-                    t.append((chess.square_file(target) + 0.5, chess.square_rank(target) + 0.5))
+                    t = [(get_file(location) + 1, get_rank(location) + 1) for location in [start, changeSquare, target]]
+                    t.append((get_file(target) + 0.5, get_rank(target) + 0.5))
                     return t
                 else:
-                    return [(chess.square_file(location) + .5, chess.square_rank(location) + .5) for location in [start, changeSquare, target]]
+                    return [(get_file(location) + .5, get_rank(location) + .5) for location in [start, changeSquare, target]]
         #Normal Movement: Movement for any piece not fitting the criteria of a special move
             else:
-                return [(chess.square_file(location) + 0.5, chess.square_rank(location) + 0.5) for location in [start, target]]
+                return [(get_file(location) + 0.5, get_rank(location) + 0.5) for location in [start, target]]
     
     #Castle: Means that the rook is moving, need to move the rook inbetween squares
         elif move_type == "CASTLE":
-            t = [(chess.square_file(location) + 1, chess.square_rank(location) + 1) for location in [start, target]]
-            t.append((chess.square_file(target) + 0.5, chess.square_rank(target) + 0.5))
+            t = [(get_file(location) + 1, get_rank(location) + 1) for location in [start, target]]
+            t.append((get_file(target) + 0.5, get_rank(target) + 0.5))
             return t
                 
     #Piece is Capturing: Moves to location of captured piece (could technically remove this)
         elif (move_type == "CAPTURE"):
-            return [(chess.square_file(location) + 0.5, chess.square_rank(location) + 0.5) for location in [start, target]]
+            return [(get_file(location) + 0.5, get_rank(location) + 0.5) for location in [start, target]]
         
     #Piece is leaving the board: Moves inbetween squares and then back to center of square
         elif(move_type == "LEAVE"):
-            t = [(chess.square_file(location) + 1, chess.square_rank(location) + 1) for location in [start, target]]
-            t.append((chess.square_file(target) + 0.5, chess.square_rank(target) + 0.5))
+            t = [(get_file(location) + 1, get_rank(location) + 1) for location in [start, target]]
+            t.append((get_file(target) + 0.5, get_rank(target) + 0.5))
             return t
         
