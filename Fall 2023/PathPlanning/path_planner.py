@@ -127,7 +127,8 @@ class PathPlanner():
         #Normal Movement: Movement for any piece not fitting the criteria of a special move
             else:
                 return [(chess.square_file(location) + 0.5, chess.square_rank(location) + 0.5) for location in [start, target]]
-    
+    #Clean up way points
+
     #Castle: Means that the rook is moving, need to move the rook inbetween squares
         elif move_type == "CASTLE":
             t = [(chess.square_file(location) + 1, chess.square_rank(location) + 1) for location in [start, target]]
@@ -140,7 +141,17 @@ class PathPlanner():
         
     #Piece is leaving the board: Moves inbetween squares and then back to center of square
         elif(move_type == "LEAVE"):
-            t = [(chess.square_file(location) + 1, chess.square_rank(location) + 1) for location in [start, target]]
-            t.append((chess.square_file(target) + 0.5, chess.square_rank(target) + 0.5))
-            return t
+            if(changeInRank > 0):
+                middleSquare = chess.square(start)
+                t = [(chess.square_file(location) + 1, chess.square_rank(location) + 1) for location in [start, target]]
+                t.append((chess.square_file(target) + 0.5, chess.square_rank(target) + 0.5))
+                return t
+            elif(changeInRank < 0):
+                t = [(chess.square_file(location) + 1, chess.square_rank(location) + 1) for location in [start, target]]
+                t.append((chess.square_file(target) + 0.5, chess.square_rank(target) + 0.5))
+                return t
+            else:
+                t = [(chess.square_file(location) + 1, chess.square_rank(location) + 1) for location in [start, target]]
+                t.append((chess.square_file(target) + 0.5, chess.square_rank(target) + 0.5))
+                return t
         
