@@ -1,7 +1,8 @@
 import chess
+from robot_control import Robot
 
 class Path:
-    def __init__(self, piece: str, points: list) -> None:
+    def __init__(self, piece: Robot, points: list) -> None:
         self.piece = piece
         self.points = points
    
