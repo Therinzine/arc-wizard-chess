@@ -9,10 +9,26 @@ class Path:
         return f'{self.piece}: {self.points}'
 
 def get_rank(square):
-    return chess.square_rank(square) if square <=63 else chess.square_file(square)
+    if square <= 63:
+        rank = chess.square_rank(square)
+    elif square <= 79:
+        # Black pieces (white side)
+        rank = (square - 64) // 4
+    else:
+        # White Pieces (black side)
+        rank = 7 - (square - 80) // 4
+    return rank
 
 def get_file(square):
-    return chess.square_file(square) if square <=63 else chess.square_rank(square)
+    if square <= 63:
+        file = chess.square_file(square)
+    elif square <= 79:
+        # Black pieces (white side)
+        file = 11 - (square - 64) % 4
+    else:
+        # White Pieces (black side)
+        file = 11 - (square - 80) % 4
+    return file
 
 class PathPlanner():
     def __init__(self, board:chess.Board) -> None:
@@ -38,7 +54,7 @@ class PathPlanner():
         # Handle Capture
         if self.board.is_capture(move):
             
-            captured_position = chess.H8 + ((self.board.turn == chess.BLACK) * 16) + self.board.capture_counts[not self.board.turn]
+            captured_position = self.board.get_capture_position()
             
             if self.board.is_en_passant(move):
                 captured_piece_square = move.to_square + (8 * self.board.turn)
@@ -49,9 +65,13 @@ class PathPlanner():
                 return paths
             else:
                 captured_piece_id = self.board.piece_list[move.to_square]
-
-                paths.append(Path(piece_id, self.single_path(move.from_square, move.to_square, move_type="CAPTURE")))
-                paths.append(Path(captured_piece_id, self.single_path(move.to_square, captured_position, move_type="LEAVE")))
+                capture_path = self.single_path(move.from_square, move.to_square, move_type="CAPTURE")
+                obstructed_edge = -1
+                if type(capture_path[0]) == int:
+                    obstructed_edge = capture_path[0]
+                    capture_path = capture_path[1:]
+                paths.append(Path(piece_id, capture_path))
+                paths.append(Path(captured_piece_id, self.single_path(move.to_square, captured_position, move_type="LEAVE", obstructed_edge = obstructed_edge)))
                 paths.append(Path(piece_id, self.single_path(move.to_square, move.to_square)))
                 return paths
 
@@ -70,7 +90,7 @@ class PathPlanner():
 
         return paths
     
-    def single_path(self, start:chess.Square, target:chess.Square, move_type="NORMAL") -> list[tuple]:
+    def single_path(self, start:chess.Square, target:chess.Square, move_type="NORMAL", obstructed_edge = -1) -> list[tuple]:
         '''
         Given starting/target locations and a piece type, generate list of points
         a single piece needs to travel to
@@ -94,7 +114,7 @@ class PathPlanner():
         moveInbetween = False
 
         #Normal movement (includes knight move)
-        if (move_type == "NORMAL"):
+        if (move_type in ["NORMAL", "CAPTURE"]):
 
         #Knight movement: path planning 1 path, not both paths.
             if ((abs(changeInRank) == 2 and abs(changeInFile) == 1) or (abs(changeInFile) == 2 and abs(changeInRank) == 1)):
@@ -105,9 +125,7 @@ class PathPlanner():
                     currentSquare = chess.square(currentFile, currentRank)
                     #if at any point there is a piece on the path, move inbetween squares, end loop
                     if self.board.piece_at(currentSquare) is not None:
-                    # endMiddle = chess.square(endRank, endFile) #need to fix this, used later but is janky
                         moveInbetween = True
-                        endMiddle = chess.square(endRank, endFile)
                         break
                     #should be one at a time, not both at once, fix this to check both paths
                     if (currentRank != endRank):
@@ -121,15 +139,42 @@ class PathPlanner():
                     #changeFile = startFile + fileDirection
                     startPosition = (changeFile, startRank + .5)
                     changePosition = (changeFile, changeRank)
+                    if move_type == "CAPTURE":
+                        endPosition = (endFile + 1 * (fileDirection == -1), endRank + .5)
+                    else:
+                        endPosition = (endFile + .5, endRank + .5)
                 else:
                     #changeRank = startRank + rankDirection
                     changeFile = startFile + (1.5 + 1 * (fileDirection == 1)) * fileDirection
                     changeRank = startRank + 1 * (rankDirection == 1) if moveInbetween else startRank + .5
                     startPosition = (startFile + .5, changeRank)
                     changePosition = (changeFile, changeRank)
+                    if move_type == "CAPTURE":
+                        endPosition = (endFile + .5, endRank + 1 * (rankDirection == -1))
+                        # when function is called with "CAPTURE", calling function expects output
+                        # to sometimes begin with an integer representing what edge will be covered.
+                        # 1 = top edge, 0 = bottom edge
+                        # Side edges will not affect movement of pieces leaving the board
+                        return [0 + 1 * (rankDirection == -1), startPosition, changePosition, endPosition]
+                    else:
+                        endPosition = (endFile + .5, endRank + .5)
+                return [startPosition, changePosition, endPosition]
+
                 #move in between squares and end up back in middle of square
-                return [startPosition, changePosition, (endFile + .5, endRank + .5)]
         #Normal Movement: Movement for any piece not fitting the criteria of a special move
+            elif move_type == "CAPTURE":
+                if (changeInFile and changeInRank):
+                    beforeEndPosition = (endFile + 1 * (fileDirection == -1), endRank + 1 * (rankDirection == -1))
+                    endPosition = (endFile + .5, endRank + 1 * (rankDirection == -1))
+                    # Piece ends at top or bottom, need to include obstructed edge at beginning
+                    return [0 + 1 * (rankDirection == -1), (startFile + .5, startRank + .5), beforeEndPosition, endPosition]
+                elif changeInFile:
+                    endPosition = (endFile + 1 * (fileDirection == -1), endRank + .5)
+                    return [(startFile + .5, startRank + .5), endPosition]
+                elif changeInRank:
+                    endPosition = (endFile + .5, endRank + 1 * (rankDirection == -1))
+                    # Piece ends at top or bottom, need to include obstructed edge at beginning
+                    return [0 + 1 * (rankDirection == -1), (startFile + .5, startRank + .5), endPosition]
             else:
                 return [(get_file(location) + 0.5, get_rank(location) + 0.5) for location in [start, target]]
     
@@ -145,7 +190,7 @@ class PathPlanner():
         
     #Piece is leaving the board: Moves inbetween squares and then back to center of square
         elif(move_type == "LEAVE"):
-            leaveRank = startRank + 1 * (rankDirection == 1)
+            leaveRank = startRank + 1 * ((rankDirection == 1 and obstructed_edge != 1) or obstructed_edge == 0)
             t = [(startFile + .5, leaveRank), (endFile, leaveRank), (endFile, endRank + .5), (endFile + .5, endRank + .5)]
             return t
         

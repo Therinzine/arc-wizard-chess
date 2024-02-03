@@ -15,11 +15,13 @@ class WizBoard(chess.Board):
             # - this is important because there is more than one black knight robot for example
         
         self.capture_counts = [0, 0]
-        
+
+    def get_capture_position(self):
+        return chess.H8 + 1 + ((self.turn == chess.BLACK) * 16) + self.capture_counts[not self.turn]         
 
     def push(self, move: chess.Move) -> None:
         if self.is_capture(move):
-            captured_position = chess.H8 + 1 + ((self.turn == chess.BLACK) * 16) + self.capture_counts[not self.turn]
+            captured_position = self.get_capture_position()
             self.piece_list[captured_position] = self.piece_list[move.to_square]
 
             self.capture_counts[not self.turn] += 1
