@@ -89,6 +89,8 @@ class PathPlanner():
         endFile = get_file(target)
         changeInRank = endRank - startRank
         changeInFile = endFile - startFile
+        rankDirection = 1 if changeInRank > 0 else -1
+        fileDirection = 1 if changeInFile > 0 else -1
         moveInbetween = False
 
         #Normal movement (includes knight move)
@@ -96,8 +98,6 @@ class PathPlanner():
 
         #Knight movement: path planning 1 path, not both paths.
             if ((abs(changeInRank) == 2 and abs(changeInFile) == 1) or (abs(changeInFile) == 2 and abs(changeInRank) == 1)):
-                rankDirection = 1 if changeInRank > 0 else -1
-                fileDirection = 1 if changeInFile > 0 else -1
                 currentRank = startRank + rankDirection
                 currentFile = startFile + fileDirection
                 #go through each square and see if there is a piece on the square
@@ -116,28 +116,27 @@ class PathPlanner():
                         currentFile += fileDirection
                 #Locates the 'change square' of the L movement from the knight
                 if (abs(changeInRank) == 2):
-                    changeInRank = startRank + 2 * rankDirection
+                    changeRank = startRank + (1.5 + 1 * (rankDirection == 1)) * rankDirection
+                    changeFile = startFile + 1 * (fileDirection == 1) if moveInbetween else startFile + .5
                     #changeFile = startFile + fileDirection
-                    changeSquare = chess.square(startFile, changeInRank)
+                    startPosition = (changeFile, startRank + .5)
+                    changePosition = (changeFile, changeRank)
                 else:
                     #changeRank = startRank + rankDirection
-                    changeFile = startFile + 2 * fileDirection
-                    changeSquare = chess.square(changeFile, startRank)
+                    changeFile = startFile + (1.5 + 1 * (fileDirection == 1)) * fileDirection
+                    changeRank = startRank + 1 * (rankDirection == 1) if moveInbetween else startRank + .5
+                    startPosition = (startFile + .5, changeRank)
+                    changePosition = (changeFile, changeRank)
                 #move in between squares and end up back in middle of square
-                if moveInbetween == True:
-                    t = [(get_file(location) + 1, get_rank(location) + 1) for location in [start, changeSquare, target]]
-                    t.append((get_file(target) + 0.5, get_rank(target) + 0.5))
-                    return t
-                else:
-                    return [(get_file(location) + .5, get_rank(location) + .5) for location in [start, changeSquare, target]]
+                return [startPosition, changePosition, (endFile + .5, endRank + .5)]
         #Normal Movement: Movement for any piece not fitting the criteria of a special move
             else:
                 return [(get_file(location) + 0.5, get_rank(location) + 0.5) for location in [start, target]]
     
     #Castle: Means that the rook is moving, need to move the rook inbetween squares
         elif move_type == "CASTLE":
-            t = [(get_file(location) + 1, get_rank(location) + 1) for location in [start, target]]
-            t.append((get_file(target) + 0.5, get_rank(target) + 0.5))
+            castleRank = startRank + 1 * (startRank == 0)
+            t = [(startFile + .5, castleRank), (endFile + .5, castleRank), (endFile + .5, endRank + .5)]
             return t
                 
     #Piece is Capturing: Moves to location of captured piece (could technically remove this)
@@ -146,7 +145,7 @@ class PathPlanner():
         
     #Piece is leaving the board: Moves inbetween squares and then back to center of square
         elif(move_type == "LEAVE"):
-            t = [(get_file(location) + 1, get_rank(location) + 1) for location in [start, target]]
-            t.append((get_file(target) + 0.5, get_rank(target) + 0.5))
+            leaveRank = startRank + 1 * (rankDirection == 1)
+            t = [(startFile + .5, leaveRank), (endFile, leaveRank), (endFile, endRank + .5), (endFile + .5, endRank + .5)]
             return t
         
