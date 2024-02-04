@@ -19,7 +19,7 @@ class WizBoard(chess.Board):
         for i, piece_id in enumerate(initial_board):
             if piece_id != '':
                 position = (get_rank(i) + .5, get_file(i) + .5)
-                robot = Robot(piece_id, position, angle=(180 if get_rank(i) > 3 else 0))
+                robot = Robot(piece_id, position, angle=(-90 if get_rank(i) > 3 else 90))
             else:
                 robot = None
             self.piece_list.append(robot)
