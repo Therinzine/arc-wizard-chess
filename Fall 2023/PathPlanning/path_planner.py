@@ -159,7 +159,7 @@ class PathPlanner():
                         return [0 + 1 * (rankDirection == -1), startPosition, changePosition, endPosition]
                     else:
                         endPosition = (endFile + .5, endRank + .5)
-                return [startPosition, changePosition, endPosition]
+                return [startPosition, changePosition, endPosition] if moveInbetween else [changePosition, endPosition]
 
                 #move in between squares and end up back in middle of square
         #Normal Movement: Movement for any piece not fitting the criteria of a special move
@@ -168,26 +168,22 @@ class PathPlanner():
                     beforeEndPosition = (endFile + 1 * (fileDirection == -1), endRank + 1 * (rankDirection == -1))
                     endPosition = (endFile + .5, endRank + 1 * (rankDirection == -1))
                     # Piece ends at top or bottom, need to include obstructed edge at beginning
-                    return [0 + 1 * (rankDirection == -1), (startFile + .5, startRank + .5), beforeEndPosition, endPosition]
+                    return [0 + 1 * (rankDirection == -1), beforeEndPosition, endPosition]
                 elif changeInFile:
                     endPosition = (endFile + 1 * (fileDirection == -1), endRank + .5)
-                    return [(startFile + .5, startRank + .5), endPosition]
+                    return [endPosition]
                 elif changeInRank:
                     endPosition = (endFile + .5, endRank + 1 * (rankDirection == -1))
                     # Piece ends at top or bottom, need to include obstructed edge at beginning
-                    return [0 + 1 * (rankDirection == -1), (startFile + .5, startRank + .5), endPosition]
+                    return [0 + 1 * (rankDirection == -1), endPosition]
             else:
-                return [(get_file(location) + 0.5, get_rank(location) + 0.5) for location in [start, target]]
+                return [(get_file(target) + 0.5, get_rank(target) + 0.5)]
     
     #Castle: Means that the rook is moving, need to move the rook inbetween squares
         elif move_type == "CASTLE":
             castleRank = startRank + 1 * (startRank == 0)
             t = [(startFile + .5, castleRank), (endFile + .5, castleRank), (endFile + .5, endRank + .5)]
             return t
-                
-    #Piece is Capturing: Moves to location of captured piece (could technically remove this)
-        elif (move_type == "CAPTURE"):
-            return [(get_file(location) + 0.5, get_rank(location) + 0.5) for location in [start, target]]
         
     #Piece is leaving the board: Moves inbetween squares and then back to center of square
         elif(move_type == "LEAVE"):

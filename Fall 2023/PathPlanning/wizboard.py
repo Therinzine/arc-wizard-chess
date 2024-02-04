@@ -18,7 +18,7 @@ class WizBoard(chess.Board):
         self.piece_list = []
         for i, piece_id in enumerate(initial_board):
             if piece_id != '':
-                position = (get_rank(i) + .5, get_file(i) + .5)
+                position = (get_file(i) + .5, get_rank(i) + .5)
                 robot = Robot(piece_id, position, angle=(-90 if get_rank(i) > 3 else 90))
             else:
                 robot = None
@@ -30,6 +30,8 @@ class WizBoard(chess.Board):
         return chess.H8 + 1 + ((self.turn == chess.BLACK) * 16) + self.capture_counts[not self.turn]         
 
     def push(self, move: chess.Move) -> None:
+        paths = self.path_planner.turn_paths(move)
+
         if self.is_capture(move):
             captured_position = self.get_capture_position()
             self.piece_list[captured_position] = self.piece_list[move.to_square]
@@ -43,6 +45,7 @@ class WizBoard(chess.Board):
         self.piece_list[move.from_square] = None
 
         super().push(move)
+        return paths
 
     def pop(self) -> None:
         super().pop()
