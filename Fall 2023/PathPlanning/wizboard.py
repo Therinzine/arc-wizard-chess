@@ -39,6 +39,18 @@ class WizBoard(chess.Board):
             self.capture_counts[not self.turn] += 1
 
         # Handle Castle  (extra swaps)
+        if self.is_castling(move):
+            castle_rank = chess.square_rank(move.to_square)
+            
+            if chess.square_file(move.to_square) == 2:
+                rook_start = chess.square(0, castle_rank)
+                rook_end   = chess.square(3, castle_rank)
+            else:
+                rook_start = chess.square(7, castle_rank)
+                rook_end   = chess.square(5, castle_rank)
+            
+            self.piece_list[rook_end] = self.piece_list[rook_start]
+            self.piece_list[rook_start] = None
         
         # Standard Moves
         self.piece_list[move.to_square] = self.piece_list[move.from_square]

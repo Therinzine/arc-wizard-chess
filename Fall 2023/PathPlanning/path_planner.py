@@ -80,8 +80,10 @@ class PathPlanner():
         if self.board.is_castling(move):
             paths.append(Path(piece_id, self.single_path(move.from_square, move.to_square)))
             if self.board.is_kingside_castling(move):
-                paths.append(Path(piece_id, self.single_path(move.from_square + 3, move.from_square + 1, move_type="CASTLE")))
+                rook_id = self.board.piece_list[chess.square(7, chess.square_rank(move.from_square))]
+                paths.append(Path(rook_id, self.single_path(move.from_square + 3, move.from_square + 1, move_type="CASTLE")))
             else:
+                rook_id = self.board.piece_list[chess.square(0, chess.square_rank(move.from_square))]
                 paths.append(Path(piece_id, self.single_path(move.from_square - 4, move.from_square - 1, move_type="CASTLE")))
             return paths
                 
