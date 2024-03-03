@@ -3,7 +3,7 @@ from path_planner import PathPlanner, get_rank, get_file
 from robot_control import Robot
 
 class WizBoard(chess.Board):
-    def __init__(self) -> None:
+    def __init__(self, server) -> None:
         super().__init__()
         self.path_planner = PathPlanner(self)
         initial_board = ['R1', 'N1', 'B1', 'Q', 'K', 'B2', 'N2', 'R2',
@@ -16,10 +16,12 @@ class WizBoard(chess.Board):
             # - this is important because there is more than one black knight robot for example
         
         self.piece_list = []
+        device_id = 0
         for i, piece_id in enumerate(initial_board):
             if piece_id != '':
                 position = (get_file(i) + .5, get_rank(i) + .5)
-                robot = Robot(piece_id, position, angle=(-90 if get_rank(i) > 3 else 90))
+                robot = Robot(piece_id, position, (-90 if get_rank(i) > 3 else 90), server, device_id)
+                device_id += 1
             else:
                 robot = None
             self.piece_list.append(robot)

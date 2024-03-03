@@ -1,6 +1,6 @@
 import wizboard
-import robot_control
 import chess
+# import server
 
 # ask for input
 # chess bot moves?
@@ -8,8 +8,8 @@ import chess
 # command robots
 
 class Game:
-    def __init__(self):
-        self.board = wizboard.WizBoard()
+    def __init__(self, server):
+        self.board = wizboard.WizBoard(server)
 
     def make_move(self, move: chess.Move):
         paths = self.board.push(move)
@@ -31,5 +31,6 @@ class Game:
             
             self.make_move(move)
 
-game = Game()
+# server = server()
+game = Game(server)
 game.run()
