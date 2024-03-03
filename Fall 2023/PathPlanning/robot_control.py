@@ -1,7 +1,8 @@
 # import server
 import math
 
-COUNTS_PER_SQUARE = 100
+COUNTS_PER_SQUARE = 4800
+PASSWORD = bytearray([ord('W'), ord('I'), ord('Z')])
 
 class Robot():
 
@@ -13,8 +14,13 @@ class Robot():
         self.angle = angle
         self.initial_angle = angle
 
+        self.buffer = bytearray()
+
     def __repr__(self):
         return self.id
+    
+    # ALL COMMANDS ONLY ADD MOVEMENT TO BUFFER, BUT STILL AFFECT ROBOT POSITION VALUES. 
+    # send_buffer() MUST BE USED FOR COMMAND TO BE SENT TO ROBOT
 
     # BYTE ARRAY FORMAT
     # First byte -> command (0 = move, 1 = turn)
@@ -26,20 +32,28 @@ class Robot():
     # Turning
     # - Second/third byte -> angle (in degrees) (signed int)
     # - need 2 bytes because 180 > 128 and negative values being used
+
+    def send_buffer(self):
+        #server.send_command(self.id, PASSWORD + self.buffer + bytearray([3]))
+        pass
         
     def move(self, distance):
-        encoder_counts = distance * COUNTS_PER_SQUARE
-        command = bytearray([0]) + bytearray(int(encoder_counts).to_bytes(2, byteorder="big"))
+        encoder_counts = distance * COUNTS_PER_SQUARE / 100
+        command = bytearray([0, 0]) + bytearray(int(encoder_counts).to_bytes(2, byteorder="big"))
         print(command)
-        # server.send_command(self.id, command)
+        self.buffer += command
     
     def turn(self, angle):
+        # 1 = clockwise, 0 = counterclockwise
         # positive angle is counterclockwise, negative is clockwise
         # Negative numbers are represented with two's complement, to be interpreted by arduino
-        command_angle = int(angle if angle >= 0 else 256 + angle)
-        command = bytearray([1]) + bytearray(command_angle.to_bytes(2, byteorder="big"))
+        if angle == 0:
+            return
+        
+        command_angle = int(angle if angle > 0 else -angle)
+        command = bytearray([1, 0 if angle > 0 else 1]) + bytearray(command_angle.to_bytes(1, byteorder="big"))
         print(command)
-        # server.send_command(self.id, command)
+        self.buffer += command
         self.angle += angle
         self.angle = self.angle % 360
 

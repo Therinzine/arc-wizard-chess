@@ -15,6 +15,7 @@ class Game:
         paths = self.board.push(move)
         for path in paths:
             path.piece.execute_path(path.points)
+            path.piece.send_buffer()
 
     def run(self):
         while True:
