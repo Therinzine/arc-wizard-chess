@@ -1,6 +1,6 @@
 import math
 
-COUNTS_PER_SQUARE = 4800
+COUNTS_PER_SQUARE = 10500
 PASSWORD = bytearray([ord('W'), ord('I'), ord('Z')])
 
 class Robot():
