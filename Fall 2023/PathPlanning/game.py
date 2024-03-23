@@ -1,6 +1,6 @@
 import wizboard
 import chess
-# import server
+from PythonServer import  ESPServer
 
 # ask for input
 # chess bot moves?
@@ -8,8 +8,9 @@ import chess
 # command robots
 
 class Game:
-    def __init__(self, server):
+    def __init__(self, server=None):
         self.board = wizboard.WizBoard(server)
+        self.robots_active = True
 
     def make_move(self, move: chess.Move):
         paths = self.board.push(move)
@@ -21,16 +22,22 @@ class Game:
         while True:
             print(self.board)
             try:
-                move = input(f'{"White" if self.board.turn == chess.WHITE else "Black"} move:')
-                move = chess.Move.from_uci(self.board.parse_san(move).uci())
+                move = input(f'Type \'robots\' to turn robots {"on" if not self.robots_active else "off"}\n{"White" if self.board.turn == chess.WHITE else "Black"} move:')
+                if move == "robots":
+                    self.robots_active = not self.robots_active
+                    print(f"robots_active: {self.robots_active}")
+                    if self.robots_active:
+                        self.board.assume_correct_positions()
+                        print("Make sure robot positions align with board")
+                else:
+                    move = chess.Move.from_uci(self.board.parse_san(move).uci())
+                    self.make_move(move)
             except ValueError: 
                 if move == 'quit':
                     break
-                print("invalid move")
-                continue
+                print("invalid move")            
             
-            self.make_move(move)
 
-# server = server()
+server = ESPServer()
 game = Game(server)
 game.run()

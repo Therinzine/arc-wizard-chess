@@ -35,8 +35,9 @@ class Robot():
     # - need 2 bytes because 180 > 128 and negative values being used
 
     def send_buffer(self):
-        self.server.send_command(self.id, PASSWORD + self.buffer + bytearray([3]))
-        pass
+        if self.server:
+            self.server.send_command(self.device_id, PASSWORD + self.buffer + bytearray([3]))
+        self.buffer = bytearray()
         
     def move(self, distance):
         encoder_counts = distance * COUNTS_PER_SQUARE / 100
@@ -52,7 +53,7 @@ class Robot():
             return
         
         command_angle = int(angle if angle > 0 else -angle)
-        command = bytearray([1, 0 if angle > 0 else 1]) + bytearray(command_angle.to_bytes(1, byteorder="big"))
+        command = bytearray([1, 0 if angle > 0 else 1]) + bytearray(command_angle.to_bytes(1, byteorder="big")) + bytearray([0])
         print(command)
         self.buffer += command
         self.angle += angle

@@ -3,11 +3,11 @@ from path_planner import PathPlanner, get_rank, get_file
 from robot_control import Robot
 
 class WizBoard(chess.Board):
-    def __init__(self, server) -> None:
+    def __init__(self, server=None) -> None:
         super().__init__()
         self.path_planner = PathPlanner(self)
         initial_board = ['R1', 'N1', 'B1', 'Q', 'K', 'B2', 'N2', 'R2',
-                           'P1', 'P1', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8'] + \
+                           'P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8'] + \
                           [''] * 32 + \
                           ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8',
                            'r1', 'n1', 'b1', 'q', 'k', 'b2', 'n2', 'r2'] + \
@@ -27,6 +27,12 @@ class WizBoard(chess.Board):
             self.piece_list.append(robot)
 
         self.capture_counts = [0, 0]
+    
+    def assume_correct_positions(self):
+        # set every robot's position data to the center of the square it should be on 
+        for i, piece in enumerate(self.piece_list):
+            if piece:
+                piece.position = (get_file(i) + .5, get_rank(i) + .5)
 
     def get_capture_position(self):
         return chess.H8 + 1 + ((self.turn == chess.BLACK) * 16) + self.capture_counts[not self.turn]         
@@ -36,6 +42,8 @@ class WizBoard(chess.Board):
 
         if self.is_capture(move):
             captured_position = self.get_capture_position()
+
+            # need to fix en passant
             self.piece_list[captured_position] = self.piece_list[move.to_square]
 
             self.capture_counts[not self.turn] += 1
