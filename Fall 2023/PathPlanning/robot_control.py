@@ -24,7 +24,7 @@ class Robot():
     # send_buffer() MUST BE USED FOR COMMAND TO BE SENT TO ROBOT
 
     # BYTE ARRAY FORMAT
-    # First byte -> command (0 = move, 1 = turn)
+    # First byte -> command (1 = move, 2 = turn)
     # 
     # Moving
     # - Second/third byte -> distance 
@@ -41,7 +41,7 @@ class Robot():
         
     def move(self, distance):
         encoder_counts = distance * COUNTS_PER_SQUARE / 100
-        command = bytearray([0, 0]) + bytearray(int(encoder_counts).to_bytes(2, byteorder="big"))
+        command = bytearray([1, 0]) + bytearray(int(encoder_counts).to_bytes(2, byteorder="big"))
         print(command)
         self.buffer += command
     
@@ -53,7 +53,7 @@ class Robot():
             return
         
         command_angle = int(angle if angle > 0 else -angle)
-        command = bytearray([1, 0 if angle > 0 else 1]) + bytearray(command_angle.to_bytes(1, byteorder="big")) + bytearray([0])
+        command = bytearray([2, 0 if angle > 0 else 1]) + bytearray(command_angle.to_bytes(1, byteorder="big")) + bytearray([0])
         print(command)
         self.buffer += command
         self.angle += angle

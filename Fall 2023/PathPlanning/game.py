@@ -14,9 +14,10 @@ class Game:
 
     def make_move(self, move: chess.Move):
         paths = self.board.push(move)
-        for path in paths:
-            path.piece.execute_path(path.points)
-            path.piece.send_buffer()
+        if self.robots_active:
+            for path in paths:
+                path.piece.execute_path(path.points)
+                path.piece.send_buffer()
 
     def run(self):
         while True:
