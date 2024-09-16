@@ -34,3 +34,9 @@
 2. Accurate movement commands:
     - During gameplay, the amount the robots move / turn given a certain number of motor encoder counts is inconsistent, especially between different robots. Feedback from computer vision will help with this, but more solutions in the robot's control code is probably necessary.
     - the move_profile() function in the control code was a test at an idea of something to help this, implemented during last semester's last meeting. It is not finished. I do not remember if it worked, and if it did, I do not remember if it helped the problem at all.
+3. Improved interface:
+    - Right now, the game interface is just a python script running in the terminal. If somebody wanted to work on a better interface (display chess board, drag chess pieces, etc.), that would make the final product look a lot better.
+          - to make moves in the current interface, write them in standard algebraic notation (https://en.wikipedia.org/wiki/Algebraic_notation_(chess))
+    - Voice recognition and voice commands. This was part of original project description.
+    - Play against chess bot. Right now, both players type moves.
+          - The python chess library supports generating moves from an engine given the current board state. This would be very helpful for implementing this.
