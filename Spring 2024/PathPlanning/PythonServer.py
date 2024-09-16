@@ -3,7 +3,7 @@ import threading
 
 # Usage
 # To initialize and use the server:
-# >>> from PythonTestServer import ESPServer
+# >>> from PythonServer import ESPServer
 # >>> server = ESPServer()
 # To send a command:
 # >>> server.send_command(1, bytearray([0x01, 0x02, ..., 0x10]))
@@ -42,7 +42,7 @@ class ESPServer:
                     # Perform a simple checksum validation
                     if checksum == (device_id & 0xFF):
                         self.devices[device_id] = addr[0]
-                       # print(f"Device {device_id} initialized with IP {addr[0]}")
+                        # print(f"Device {device_id} initialized with IP {addr[0]}")
                     else:
                         pass
                         #print(f"Checksum mismatch for device ID {device_id}")
