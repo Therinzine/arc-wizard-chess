@@ -15,8 +15,9 @@
 
 ## Computer Vision
 - This code detects positions of pieces using computer vision and april tags
-- It defines a boundary rectangle by finding the april tags with the IDs of corners, then can find the relative position of other rectangles within the boundary
-- Pranesh has more information about what is done and what needs to be done
+- It defines a boundary rectangle by finding the april tags with specific IDs; this identifies the chess board
+- Lines are then drawn using the 4 tags as reference to create every individual square on the board
+- Other April Tags (which represent chess pieces) are then assigned to a region
 
 ## How it works:
 1. game.py from path planning runs the chess game. It takes a move as input and sends it to a Wizboard object from wizboard.py.
